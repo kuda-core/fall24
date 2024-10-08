@@ -16,7 +16,7 @@ public class nfa2dfa {
 		//String[][] matrix = { {"10","20","OK"},{"5","30","KO"}, {"20","100","NA"}, {"10","60","OK"} };
 		initializeVariables();
 		System.out.println("nfa:");
-		example1();
+		example3();
 		System.out.println("\ndfa:");
 		createDFA();
 		//System.out.println(java.util.Arrays.deepToString(m));
@@ -42,8 +42,21 @@ public class nfa2dfa {
 				s = get((int)(q-'0'),'a');//qState
 				if(s == null)
 					break;
-
+				
 				for(char c:s.toCharArray()) {
+					if(Character.isDigit(c))
+						if(next.indexOf(c) == -1) // does not contain c
+							next += c;//parse ints only
+				}
+				//System.out.println("next: " + next);
+			}
+			//LLLLLLLLL
+			for(char q: next.toCharArray()) {
+				String tmp = get((int)(q-'0'),'L');//should be next qstate
+				if(tmp == null)
+					break;
+				
+				for(char c:tmp.toCharArray()) {
 					if(Character.isDigit(c))
 						if(next.indexOf(c) == -1) // does not contain c
 							next += c;//parse ints only
@@ -55,6 +68,7 @@ public class nfa2dfa {
 					stack.push(next);
 			} else if(getDFA(qState, 'a') == null && next == "")
 					setDFA(qState,'a',"Trap");
+			
 			//BBBBBBBB
 			//given m(q,b)
 			//loop used to get individual '012'
@@ -63,7 +77,21 @@ public class nfa2dfa {
 				s = get((int)(q-'0'),'b');//qState
 				if(s == null)
 					break;
+				
 				for(char c:s.toCharArray()) {
+					if(Character.isDigit(c))
+						if(next.indexOf(c) == -1) // does not contain c
+							next += c;//parse ints only
+				}
+				//System.out.println("next: " + next);
+			}
+			//LLLLLLLLLL
+			for(char q: next.toCharArray()) {
+				String tmp = get((int)(q-'0'),'L');//should be next qState
+				if(tmp == null)
+					break;
+				
+				for(char c:tmp.toCharArray()) {
 					if(Character.isDigit(c))
 						if(next.indexOf(c) == -1) // does not contain c
 							next += c;//parse ints only
@@ -75,8 +103,27 @@ public class nfa2dfa {
 					stack.push(next);
 			} else if(getDFA(qState, 'b') == null && next == "")
 					setDFA(qState,'b',"Trap");
+
+			//LLLLLLLL
+			//given m(q,L)
+			//loop used to get individual '012'
+			next = "";
+			for(char q: qState.toCharArray()) {
+				s = get((int)(q-'0'),'L');//qState
+				if(s == null)
+					break;
+				for(char c:s.toCharArray()) {
+					if(Character.isDigit(c))
+						if(next.indexOf(c) == -1) // does not contain c
+							next += c;//parse ints only
+				}
+				//System.out.println("next: " + next);
+			}
+			if(next != "" && getDFA(qState, 'L') == null && s != null) {
+					//setDFA(qState,'L',next);	
+					//stack.push(next);
+			}// else if(getDFA(qState, 'L') == null && next == "") setDFA(qState,'L',"Trap");
 			//System.out.println(java.util.Arrays.toString(stack.toArray()));
-			//setDFA(qState,'a',);
 		}
 	}
 	public static String getDFA(String q, char c) {
