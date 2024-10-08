@@ -34,17 +34,53 @@ public class nfa2dfa {
 		while(!stack.isEmpty()) {
 			String qState = stack.pop();
 			String next = "";
+			String s = "";
+			//AAAAAAAA
+			//given m(q,a)
 			//loop used to get individual '012'
 			for(char q: qState.toCharArray()) {
-				String s = get((int)(q-'0'),'a');
+				s = get((int)(q-'0'),'a');//qState
+				if(s == null)
+					break;
+
 				for(char c:s.toCharArray()) {
 					if(Character.isDigit(c))
-						if(s.indexOf(c) != -1)
-							s += c;
+						if(next.indexOf(c) == -1) // does not contain c
+							next += c;//parse ints only
 				}
+				//System.out.println("next: " + next);
 			}
+			if(next != "" && getDFA(qState, 'a') == null) {
+					setDFA(qState,'a',next);
+					stack.push(next);
+			} else if(getDFA(qState, 'a') == null && next == "")
+					setDFA(qState,'a',"Trap");
+			//BBBBBBBB
+			//given m(q,b)
+			//loop used to get individual '012'
+			next = "";
+			for(char q: qState.toCharArray()) {
+				s = get((int)(q-'0'),'b');//qState
+				if(s == null)
+					break;
+				for(char c:s.toCharArray()) {
+					if(Character.isDigit(c))
+						if(next.indexOf(c) == -1) // does not contain c
+							next += c;//parse ints only
+				}
+				//System.out.println("next: " + next);
+			}
+			if(next != "" && getDFA(qState, 'b') == null && s != null) {
+					setDFA(qState,'b',next);	
+					stack.push(next);
+			} else if(getDFA(qState, 'b') == null && next == "")
+					setDFA(qState,'b',"Trap");
+			//System.out.println(java.util.Arrays.toString(stack.toArray()));
 			//setDFA(qState,'a',);
 		}
+	}
+	public static String getDFA(String q, char c) {
+		return dst[values.get(q)][charToInt(c)];
 	}
 	public static void setDFA(String q, char c, String s) {
 		dst[values.get(q)][charToInt(c)] = s;
