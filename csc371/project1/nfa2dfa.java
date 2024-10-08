@@ -15,17 +15,30 @@ public class nfa2dfa {
 		//https://stackoverflow.com/questions/6998119/java-create-a-matrix-of-strings
 		//String[][] matrix = { {"10","20","OK"},{"5","30","KO"}, {"20","100","NA"}, {"10","60","OK"} };
 		initializeVariables();
-		System.out.println("nfa:");
+		System.out.println("\n\texample 1\nnfa:");
+		example1();
+		System.out.println("\ndfa:");
+		createDFA();
+
+		initializeVariables();
+		System.out.println("\n\texample 2\nnfa:");
+		example2();
+		System.out.println("\ndfa:");
+		createDFA();
+
+		initializeVariables();
+		System.out.println("\n\texample 3\nnfa:");
 		example3();
+		System.out.println("\ndfa:");
+		createDFA();
+
+		initializeVariables();
+		System.out.println("\n\texample 4\nnfa:");
+		example4();
 		System.out.println("\ndfa:");
 		createDFA();
 		//System.out.println(java.util.Arrays.deepToString(m));
 		
-	}
-	public static void example1() {
-		set(0, 'a', "0,1");
-		set(1, 'b', "1,2");
-		set(2, 'a', "2");
 	}
 	public static void createDFA() {
 		dst = new String[8][4];
@@ -132,6 +145,11 @@ public class nfa2dfa {
 	public static void setDFA(String q, char c, String s) {
 		dst[values.get(q)][charToInt(c)] = s;
 		System.out.println("d["+q+"]"+"["+c+"] = "+s);
+	}
+	public static void example1() {
+		set(0, 'a', "0,1");
+		set(1, 'b', "1,2");
+		set(2, 'a', "2");
 	}
 	public static void example2() {
 		set(0, 'a', "0,1");
