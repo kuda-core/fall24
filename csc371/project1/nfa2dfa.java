@@ -44,6 +44,7 @@ public class nfa2dfa {
 		dst = new String[8][4];
 		Stack<String> stack = new Stack<>();
 		stack.push("0");
+		boolean hasTrap = false;
 		while(!stack.isEmpty()) {
 			String qState = stack.pop();
 			String next = "";
@@ -79,8 +80,10 @@ public class nfa2dfa {
 			if(next != "" && getDFA(qState, 'a') == null) {
 					setDFA(qState,'a',next);
 					stack.push(next);
-			} else if(getDFA(qState, 'a') == null && next == "")
-					setDFA(qState,'a',"Trap");
+			} else if(getDFA(qState, 'a') == null && next == "") {
+				setDFA(qState,'a',"Trap");
+				hasTrap = true;
+			}
 			
 			//BBBBBBBB
 			//given m(q,b)
@@ -114,8 +117,11 @@ public class nfa2dfa {
 			if(next != "" && getDFA(qState, 'b') == null && s != null) {
 					setDFA(qState,'b',next);	
 					stack.push(next);
-			} else if(getDFA(qState, 'b') == null && next == "")
-					setDFA(qState,'b',"Trap");
+			} else if(getDFA(qState, 'b') == null && next == "") {
+				setDFA(qState,'b',"Trap");
+				hasTrap = true;
+			}
+			
 
 			//LLLLLLLL
 			//given m(q,L)
@@ -138,13 +144,21 @@ public class nfa2dfa {
 			}// else if(getDFA(qState, 'L') == null && next == "") setDFA(qState,'L',"Trap");
 			//System.out.println(java.util.Arrays.toString(stack.toArray()));
 		}
+		//if dfa has trap
+		if(hasTrap) {
+			setDFA("Trap",'a',"Trap");
+			setDFA("Trap",'b',"Trap");
+		}
 	}
 	public static String getDFA(String q, char c) {
 		return dst[values.get(q)][charToInt(c)];
 	}
 	public static void setDFA(String q, char c, String s) {
 		dst[values.get(q)][charToInt(c)] = s;
-		System.out.println("d["+q+"]"+"["+c+"] = "+s);
+		if(q.indexOf((char)(finalState+'0')) == -1)
+			System.out.println("d["+q+"]"+"["+c+"] = "+s);
+		else
+			System.out.println("d["+q+"]"+"["+c+"] = "+s+"\tF");
 	}
 	public static void example1() {
 		set(0, 'a', "0,1");
@@ -212,6 +226,7 @@ public class nfa2dfa {
 		values.put("02",4);
 		values.put("12",5);
 		values.put("012",6);
+		values.put("Trap",7);
 
 		helper = new int[]{0,1,2};
 	}
