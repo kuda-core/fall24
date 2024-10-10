@@ -5,7 +5,7 @@ import java.util.Scanner;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.IOException;
-
+import java.util.concurrent.locks.*;
 /*main method*/
 public class commute {
 	public static void main(String[] args) {
@@ -24,6 +24,7 @@ public class commute {
 }
 /*bus class*/
 class Bus implements Runnable {
+	private static Lock lock = new ReentrantLock();
 	int i;
 	int stops;
 	int curr_delay;
@@ -42,6 +43,7 @@ class Bus implements Runnable {
 	@param f number of stops
 	*/
 	Bus(int n,String s) {
+		lock.lock();
 		this.i = 0;
 		this.stops = n;
 		this.bus_name = s.substring(0,s.length()-4);
@@ -52,19 +54,23 @@ class Bus implements Runnable {
 		} catch(Exception e) {
 			System.out.println(e.toString());
 		}
+		finally {
+			lock.unlock();
+		}
 		
 	}
 	@Override
 	public void run() {
 		try {
-			
-			
+			lock.lock();
 			curr_delay = rand.nextInt(max - min + 1) + min;
 			next_delay = curr_delay;
-			Thread.sleep(curr_delay*50);
+			//Thread.sleep(curr_delay*150);
 			if(input.hasNext())
 					next_stop = input.nextLine();
+			lock.unlock();
 			for(; i < stops; i+=1) {
+				lock.lock();
 				System.out.print(i+" ");
 				curr_delay = next_delay;
 				curr_stop = next_stop;
@@ -87,15 +93,16 @@ class Bus implements Runnable {
 				System.out.print(curr_stop+"] ");
 				if(i == stops-1) {
 					System.out.println("Final Destination");
+					lock.unlock();
 				} else {
 					System.out.print("next stop: [");
 					System.out.print(next_stop+"] ETA: ");
 				
 					//next stop
 					System.out.println(curr_delay+" min"+(curr_delay==1?"":"s"));
+					lock.unlock();
 					Thread.sleep(curr_delay*m);//60,000 = 60 secs
 				}
-				
 				
 			}
 			input.close();
@@ -104,6 +111,8 @@ class Bus implements Runnable {
 		}
 		catch(InterruptedException ex) {
 
+		} finally {
+			lock.unlock();
 		}
 	}
 }
