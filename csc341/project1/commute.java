@@ -16,10 +16,21 @@ public class commute {
 		//create threads
 		Thread thread1 = new Thread(metro55);
 		Thread thread2 = new Thread(bbb3);
-
+		Thread thread3 = new Thread(new Bus(60,"bbb-7.txt"));
 		//start threads
-		thread1.start();
-		thread2.start();
+		try {
+			thread1.start();
+			thread2.start();
+			thread3.start();
+
+			thread1.join();
+			thread2.join();
+			thread3.join();
+		} catch(InterruptedException ex) {
+
+		} finally {
+			System.out.println("...All threads have completed!!!");
+		}
 	}
 }
 /*bus class*/
@@ -71,7 +82,7 @@ class Bus implements Runnable {
 			lock.unlock();
 			for(; i < stops; i+=1) {
 				lock.lock();
-				System.out.print(i+" ");
+				//System.out.print(i+" ");
 				curr_delay = next_delay;
 				curr_stop = next_stop;
 				
@@ -101,15 +112,13 @@ class Bus implements Runnable {
 					//next stop
 					System.out.println(curr_delay+" min"+(curr_delay==1?"":"s"));
 					lock.unlock();
-					Thread.sleep(curr_delay*m);//60,000 = 60 secs
+					Thread.sleep(curr_delay*s);//60,000 = 60 secs
 				}
 				
 			}
 			input.close();
-			
-
 		}
-		catch(InterruptedException ex) {
+		catch(Exception ex) {
 
 		} finally {
 			lock.unlock();
