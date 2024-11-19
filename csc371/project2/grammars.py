@@ -70,108 +70,17 @@ ex6_3_grammar.append(dict(name='B',data=['aa']))
 ex6_3_grammar.append(dict(name='C',data=['aCb']))
 
 
-print('Example 6.3')
-
-grammar = ex6_3_grammar
-# necessary to keep track of original data for removing unit prods
-grammar_dict = {rule['name']: rule['data'] for rule in grammar}
-
-print('ORIGINAL:')
-for entry in grammar:
-	print(entry['name'], '->', entry['data'])
+def theorem_6_5(g):
+	grammar = g
 
 
 
+	# necessary to keep track of original data for removing unit prods
+	grammar_dict = {rule['name']: rule['data'] for rule in grammar}
 
-
-
-
-
-
-
-
-
-
-# Order: Lambda, Unit, Useless
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Lambda substitution
-# Lambda # Lambda # Lambda # Lambda # Lambda
-# 1. for all productions A->L put A into Vn
-# push into stack if contains lambda
-stack = []
-empty_stack = []
-for entry in grammar:
-	data = entry['data']
-	if 'L' in data:
-		stack.append(entry['name'])
-		entry['data'].remove('L')
-		if entry['data'] == []:
-			empty_stack.append(entry['data'])
-
-
-while(True):
-	isUpdated = False
-	for item in empty_stack:
-		for i, entry in enumerate(grammar):
-			if entry['data'] == []:
-				isUpdated = True
-				grammar.pop(i)
-			for j, production in enumerate(entry['data']):
-				if item in production:
-					isUpdated = True
-					entry['data'].remove(production)
-	if isUpdated == False:
-		break
-	else:
-		isUpdated = False
-
-
-
-
-new_entry = False
-count = 0
-while(True):
+	print('ORIGINAL:')
 	for entry in grammar:
-		for production in entry['data']:
-			if find_if_nullable(production,stack):
-				if entry['name'] not in stack:
-					stack.append(entry['name'])
-					new_entry = True
-	if new_entry == False:
-		break
-	else:
-		new_entry = False
-
-# print('stack:',stack)
-
-for L in range(len(stack) + 1):
-    for subset in itertools.combinations(stack, L):
-        for i, entry in enumerate(grammar):
-        	for string in entry['data']:
-	        	result = delete_subset_chars(string,subset)
-	        	if result in entry['data'] or result == '':
-	        		continue
-	        	else:
-	        		entry['data'].append(result)
-print("LAMBDA:")
-for entry in grammar:
-	print(entry['name'], '->', entry['data'])
+		print(entry['name'], '->', entry['data'])
 
 
 
@@ -185,41 +94,7 @@ for entry in grammar:
 
 
 
-# Unit 
-# Unit # Unit # Unit # Unit # Unit # Unit 
-
-new_entry = False
-while(True):
-	for i,entry in enumerate(grammar):
-		stack = []
-		for j,production in enumerate(entry['data']):
-			#check to see if unit production
-			if len(production) == 1:
-				if production.isupper():
-					
-					# A->A delete without concequence
-					if entry['name'] == production:
-						entry['data'].remove(production)
-					# A->B
-					else:
-						new_entry = True
-						entry['data'].remove(production)
-						curr_ = entry['data']
-						for k in grammar_dict[production]:
-							if k not in entry['data']:
-								entry['data'].append(k)
-						
-	if new_entry == False:
-		break
-	else:
-		new_entry = False
-
-
-
-
-print("UNARY:")
-for entry in grammar:
-	print(entry['name'], '->', entry['data'])
+	# Order: Lambda, Unit, Useless
 
 
 
@@ -233,68 +108,35 @@ for entry in grammar:
 
 
 
-# USELESS
-# USELESS # USELESS # USELESS # USELESS # USELESS
 
 
 
 
-
-while(True):
-	isUpdated = False
-	reachable_stack = []
-	reachable_stack.append('S')
-	for i, entry in enumerate(grammar):
-		hasTerminal = False
-		stack = []
-		if entry['name'] not in reachable_stack:
-			isUpdated = True
-			# print(entry['name'])
-			grammar.pop(i)
-
-			
-		for j, production in enumerate(entry['data']):
-
-			if production.islower():
-				hasTerminal = True
-				# print(production,'true')
-			else:
-				for char in production:
-					if char.isupper():
-						if char not in stack:
-							stack.append(char)
-						if char not in reachable_stack:
-							reachable_stack.append(char)
-							# print('reach:',reachable_stack)
-				# print(production,'false')
-
-		if hasTerminal:
-			continue
-		else:
-			for item in stack:
-				if entry['name'] == item:
-					entry['data'].remove(production)
-					isUpdated = True
-	if isUpdated == False:
-		break
-	else:
-		isUpdated = False
-
-
-
+	# Lambda substitution
+	# Lambda # Lambda # Lambda # Lambda # Lambda
+	# 1. for all productions A->L put A into Vn
+	# push into stack if contains lambda
 	stack = []
-	for i, entry in enumerate(grammar):
-		if entry['data'] == []:
+	empty_stack = []
+	for entry in grammar:
+		data = entry['data']
+		if 'L' in data:
 			stack.append(entry['name'])
-			# print(entry['name'])
+			entry['data'].remove('L')
+			if entry['data'] == []:
+				empty_stack.append(entry['name'])
+
 
 	while(True):
-		for item in stack:
+		isUpdated = False
+		# print(empty_stack,'empty stack')
+		for item in empty_stack:
 			for i, entry in enumerate(grammar):
 				if entry['data'] == []:
 					isUpdated = True
 					grammar.pop(i)
 				for j, production in enumerate(entry['data']):
+					# print(item, production)
 					if item in production:
 						isUpdated = True
 						entry['data'].remove(production)
@@ -304,6 +146,174 @@ while(True):
 			isUpdated = False
 
 
-print("USELESS:")
-for entry in grammar:
-	print(entry['name'], '->', entry['data'])
+
+
+	new_entry = False
+	count = 0
+	while(True):
+		for entry in grammar:
+			for production in entry['data']:
+				if find_if_nullable(production,stack):
+					if entry['name'] not in stack:
+						stack.append(entry['name'])
+						new_entry = True
+		if new_entry == False:
+			break
+		else:
+			new_entry = False
+
+	# print('stack:',stack)
+
+	for L in range(len(stack) + 1):
+	    for subset in itertools.combinations(stack, L):
+	        for i, entry in enumerate(grammar):
+	        	for string in entry['data']:
+		        	result = delete_subset_chars(string,subset)
+		        	if result in entry['data'] or result == '':
+		        		continue
+		        	else:
+		        		entry['data'].append(result)
+	print("LAMBDA:")
+	for entry in grammar:
+		print(entry['name'], '->', entry['data'])
+
+
+
+
+
+
+
+
+
+
+
+
+
+	# Unit 
+	# Unit # Unit # Unit # Unit # Unit # Unit 
+
+	new_entry = False
+	while(True):
+		for i,entry in enumerate(grammar):
+			stack = []
+			for j,production in enumerate(entry['data']):
+				#check to see if unit production
+				if len(production) == 1:
+					if production.isupper():
+						
+						# A->A delete without concequence
+						if entry['name'] == production:
+							entry['data'].remove(production)
+						# A->B
+						else:
+							new_entry = True
+							entry['data'].remove(production)
+							curr_ = entry['data']
+							for k in grammar_dict[production]:
+								if k not in entry['data']:
+									entry['data'].append(k)
+							
+		if new_entry == False:
+			break
+		else:
+			new_entry = False
+
+
+
+
+	print("UNARY:")
+	for entry in grammar:
+		print(entry['name'], '->', entry['data'])
+
+
+
+
+
+
+
+
+
+
+
+
+
+	# USELESS
+	# USELESS # USELESS # USELESS # USELESS # USELESS
+
+
+
+
+
+	while(True):
+		isUpdated = False
+		reachable_stack = []
+		reachable_stack.append('S')
+		for i, entry in enumerate(grammar):
+			hasTerminal = False
+			stack = []
+			if entry['name'] not in reachable_stack:
+				isUpdated = True
+				# print(entry['name'])
+				grammar.pop(i)
+
+				
+			for j, production in enumerate(entry['data']):
+
+				if production.islower():
+					hasTerminal = True
+					# print(production,'true')
+				else:
+					for char in production:
+						if char.isupper():
+							if char not in stack:
+								stack.append(char)
+							if char not in reachable_stack:
+								reachable_stack.append(char)
+								# print('reach:',reachable_stack)
+					# print(production,'false')
+
+			if hasTerminal:
+				continue
+			else:
+				for item in stack:
+					if entry['name'] == item:
+						entry['data'].remove(production)
+						isUpdated = True
+		if isUpdated == False:
+			break
+		else:
+			isUpdated = False
+
+
+
+		stack = []
+		for i, entry in enumerate(grammar):
+			if entry['data'] == []:
+				stack.append(entry['name'])
+				# print(entry['name'])
+
+		while(True):
+			for item in stack:
+				for i, entry in enumerate(grammar):
+					if entry['data'] == []:
+						isUpdated = True
+						grammar.pop(i)
+					for j, production in enumerate(entry['data']):
+						if item in production:
+							isUpdated = True
+							entry['data'].remove(production)
+			if isUpdated == False:
+				break
+			else:
+				isUpdated = False
+
+
+	print("USELESS:")
+	for entry in grammar:
+		print(entry['name'], '->', entry['data'])
+
+###
+print('\tTest Case 1:')
+theorem_6_5(case1_grammar)
+print('\n\n\tTest Case 2:')
+theorem_6_5(case2_grammar)
