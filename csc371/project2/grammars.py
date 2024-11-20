@@ -1,4 +1,6 @@
 import itertools
+import string
+import copy
 
 def delete_subset_chars(string, subset):
     """Deletes all characters from 'string' that are present in 'subset'."""
@@ -71,7 +73,7 @@ ex6_3_grammar.append(dict(name='C',data=['aCb']))
 
 
 def theorem_6_5(g):
-	grammar = g
+	grammar = copy.deepcopy(g)
 
 
 
@@ -312,8 +314,198 @@ def theorem_6_5(g):
 	for entry in grammar:
 		print(entry['name'], '->', entry['data'])
 
+	return grammar
 ###
+
+
+
+
+def find_name_by_data(grammar, data_value):
+    for rule in grammar:
+        if data_value in rule['data']:
+            return rule['name']  # Return the first match
+    return None  # If not found
+
+def get_data_by_name(grammar, name):
+    for rule in grammar:
+        if rule['name'] == name:
+            return rule['data']  # Return the 'data' list
+    return None  # Return None if name not found
+
+
+
+## CHOMSKY
+# CHOMSKYCHOMSKYCHOMSKYCHOMSKY
+def chomsky(g):
+	grammar = copy.deepcopy(g)
+	alpha = []
+	terminal = []
+	
+	for i,entry in enumerate(grammar):
+		if entry['name'] not in alpha:
+			alpha.append(entry['name'])
+			# print('alpha',alpha)
+		# print('...')
+		for j, data in enumerate(entry['data']):
+			if data.isupper():
+				continue
+			if len(data) == 1 and data.islower():
+				if data not in terminal:
+					terminal.append(data)
+					# print('terminal',terminal)
+				continue
+
+	while(True):
+		grammar_dict = {rule['name']: rule['data'] for rule in grammar}
+
+		isUpdated = False
+		for i,entry in enumerate(grammar):
+			for j, data in enumerate(entry['data']):
+				# print(data)
+				for char in data:
+					if char.isupper():
+						continue
+					else:
+						t = char
+						if t not in terminal:
+							for letter in string.ascii_uppercase:
+								if letter not in alpha:
+									grammar.append(dict(name=letter,data=[t]))
+									terminal.append(t)
+									isUpdated = True
+									break
+		# replace all new terminals with variables
+		for i,entry in enumerate(grammar):
+			for j, data in enumerate(entry['data']):
+				if len(data) == 1 and data.islower():
+					continue
+				if data.isupper():
+					continue
+				# print('data',data)
+
+				temp = ''
+				
+				
+				for k,char in enumerate(data):
+					if char.islower():
+						variable = find_name_by_data(grammar,char)
+						# print(char,variable)
+						temp += variable
+					else:
+						temp += char
+				entry['data'][j] = temp
+
+		if isUpdated == False:
+			break
+		else:
+			isUpdated = False
+
+	print("CHOMSKY:")
+	for entry in grammar:
+		print(entry['name'], '->', entry['data'])
+				
+
+## GREIBACH
+def greibach(g):
+	grammar = copy.deepcopy(g)
+	alpha = []
+	terminal = []
+
+
+	for i,entry in enumerate(grammar):
+		if entry['name'] not in alpha:
+			alpha.append(entry['name'])
+			# print('alpha',alpha)
+		# print('...')
+	for i,entry in enumerate(grammar):
+		for j, data in enumerate(entry['data']):
+			if data.isupper():
+				continue
+			if len(data) == 1 and data.islower():
+				if data not in terminal:
+					terminal.append(data)
+					# print('terminal',terminal)
+				continue
+	while(True):
+		isUpdated = False
+
+		for i,entry in enumerate(grammar):
+			for j,data in enumerate(entry['data']):
+				for k, char in enumerate(data):
+					if k == 0:
+						if char.isupper():
+
+							productions = get_data_by_name(grammar,char)
+							prev = data[1:]
+							entry['data'].remove(data)
+							isUpdated = True
+							count = 0
+							for p in productions:
+								count += 1
+								if (p+prev) not in entry['data']:
+									entry['data'].append(p+prev)
+								
+							# print('islower',char)
+						continue
+		if isUpdated == False:
+			break
+		else:
+			isUpdated = False
+
+
+
+	for i,entry in enumerate(grammar):
+			for j,data in enumerate(entry['data']):
+				temp = ''
+				for k, char in enumerate(data):
+					if k == 0:
+						temp += char
+						continue
+					if char.isupper():
+						temp += char
+						continue
+					t = char
+					if t not in terminal:
+						print('yo......')
+						for letter in string.ascii_uppercase:
+							if letter not in alpha:
+								grammar.append(dict(name=letter,data=[t]))
+								terminal.append(t)
+								temp+=letter
+								break
+					else:
+						variable = find_name_by_data(grammar,t)
+						temp += variable
+				entry['data'][j] = temp
+
+
+
+
+
+	#print('terminal',terminal)
+	#print('alpha',alpha)
+
+
+	print("GREIBACH:")
+	for entry in grammar:
+		print(entry['name'], '->', entry['data'])
+
+
+
+
+
+
+
+
+
+
+
 print('\tTest Case 1:')
-theorem_6_5(case1_grammar)
+g = theorem_6_5(case1_grammar)
+chomsky(g)
+greibach(g)
+
 print('\n\n\tTest Case 2:')
-theorem_6_5(case2_grammar)
+g = theorem_6_5(case2_grammar)
+chomsky(g)
+greibach(g)
